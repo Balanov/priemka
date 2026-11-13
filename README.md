@@ -135,9 +135,12 @@ reader sees *which* property is weak, not just that the run failed.
 ## Install
 
 ```bash
-pip install priemka          # into a virtualenv
-pipx install priemka         # isolated CLI
-python -m priemka --help     # from a checkout
+# isolated CLI
+pipx install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
+# into a virtualenv
+pip install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
+# from a checkout
+python -m priemka --help
 ```
 
 Python 3.11+, zero runtime dependencies.

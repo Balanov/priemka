@@ -1,0 +1,28 @@
+{
+  "tool": "priemka",
+  "python": "3.14.7",
+  "implementation": "CPython",
+  "platform": "Windows-11-10.0.28020-SP0",
+  "measurements": {
+    "run": {
+      "gates": 9,
+      "repeat": 25,
+      "meanMs": 0.117,
+      "medianMs": 0.092,
+      "minMs": 0.086,
+      "maxMs": 0.692,
+      "stdevMs": 0.118
+    },
+    "report": {
+      "repeat": 5,
+      "stableDigest": true,
+      "digest": "f98ef351a798de4ee4c14d6c022a2a351010592b6ca252279bfb13b1af92e04a",
+      "markdownBytes": 3615
+    },
+    "inputs": {
+      "fixtureBytes": 2315,
+      "fixtureSha256": "e530e258435b50c6aeea1cde7062c0e039c4b2bea224989aef50419b9cdfb744",
+      "packSha256": "53265422c7e637f6a9618169745d3e094fde3dbe0913251121e64945cdb36a63"
+    }
+  }
+}

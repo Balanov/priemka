@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] — 2026-11-14
+
+### Added
+
+- The package is published on [PyPI](https://pypi.org/project/priemka/). A trusted
+  publisher (`Balanov/priemka`, workflow `release.yml`, environment `pypi`) lets
+  GitHub Actions publish through OIDC, so `pipx install priemka` works without
+  an API token and every release reaches PyPI from the same tag.
+- `release.yml` accepts a manual run with an explicit tag, so a release can be
+  rebuilt and re-published from `main` without moving a published tag.
+- Install instructions now point at PyPI; the release wheel and
+  `checksums.txt` stay attached to every GitHub release.
+
 ## [1.0.1] — 2026-11-14
 
 ### Fixed

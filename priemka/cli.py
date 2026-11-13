@@ -51,6 +51,9 @@ def build_parser() -> argparse.ArgumentParser:
     explain = sub.add_parser("explain", help="что проверяет гейт и как чинить")
     explain.add_argument("gate")
 
+    verify = sub.add_parser("verify", help="проверить, что отчёт не менялся после подписания")
+    verify.add_argument("--report", required=True, help="путь к acceptance-report.json")
+
     run = sub.add_parser("run", help="прогнать пакет проверок")
     run.add_argument("--pack", required=True, help="путь к TOML-пакету")
     run.add_argument("--target", default=None, help="адрес проверяемой системы (перекрывает пакет)")
@@ -138,6 +141,26 @@ def cmd_run(args) -> int:
     return 0 if result.accepted else 1
 
 
+def cmd_verify(args) -> int:
+    from .report import verify_report
+
+    result = verify_report(args.report)
+    status = result.get("status")
+    if status == "intact":
+        print(f"отчёт не менялся: {result['stored']}")
+        return 0
+    if status == "altered":
+        print(f"отчёт изменён после подписания")
+        print(f"  сохранено:  {result['stored']}")
+        print(f"  вычислено: {result['computed']}")
+        return 1
+    if status == "unsigned":
+        print(f"в отчёте нет подписи: {result['path']}")
+        return 2
+    print(f"отчёт не читается: {result.get('error')}", file=sys.stderr)
+    return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     handlers = {
@@ -145,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
         "rules": cmd_rules,
         "explain": cmd_explain,
         "run": cmd_run,
+        "verify": cmd_verify,
     }
     return handlers[args.command](args)
 

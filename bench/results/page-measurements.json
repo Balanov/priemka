@@ -1,0 +1,30 @@
+{
+  "harness": {
+    "gates": 9,
+    "repeat": 25,
+    "medianMs": 0.09,
+    "meanMs": 0.113,
+    "minMs": 0.087,
+    "maxMs": 0.586
+  },
+  "modelCall": {
+    "model": "qwen3:8b",
+    "repeat": 3,
+    "medianMs": 674.3
+  },
+  "footprint": {
+    "files": 8,
+    "lines": 1134,
+    "runtimeDependencies": 0,
+    "sdistBytes": 0
+  },
+  "reproducibility": {
+    "repeat": 5,
+    "digestStable": true,
+    "digest": "f98ef351a798de4ee4c14d6c022a2a351010592b6ca252279bfb13b1af92e04a",
+    "verdicts": [
+      "НЕ ПРИНЯТО/88.0"
+    ],
+    "markdownBytes": 3615
+  }
+}

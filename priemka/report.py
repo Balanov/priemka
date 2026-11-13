@@ -1,4 +1,9 @@
-"""Отчёт приёмки: JSON, Markdown и подпись хешем."""
+"""Отчёт приёмки: JSON, Markdown и подпись хешем.
+
+Отчёт отвечает на вопрос заказчика: «можно ли эту систему принимать в эксплуатацию
+и на что смотреть, если нельзя». Поэтому в нём есть вердикт, индекс готовности,
+разбивка по измерениям и пошаговая подсказка по каждому проваленному гейту.
+"""
 
 from __future__ import annotations
 
@@ -9,10 +14,15 @@ from typing import Any
 
 from .runner import RunResult
 
+VERDICT_MARKS = {
+    "ПРИНЯТО": "ok",
+    "ПРИНЯТО С ОГОВОРКАМИ": "warn",
+    "НЕ ПРИНЯТО": "fail",
+}
+
 
 def verdict_of(result: RunResult) -> str:
-    """Вердикт приёмки. Fail-closed: любой проваленный блокирующий гейт означает отказ."""
-    return "ПРИНЯТО" if result.accepted else "НЕ ПРИНЯТО"
+    return result.grade
 
 
 def canonical_json(payload: dict[str, Any]) -> str:
@@ -24,48 +34,96 @@ def report_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
+def _bar(score: float, width: int = 20) -> str:
+    filled = int(round(score / 100 * width))
+    return "█" * filled + "·" * (width - filled)
+
+
 def render_markdown(result: RunResult) -> str:
     """Человекочитаемый отчёт приёмки."""
     payload = result.to_dict()
+    verdict = verdict_of(result)
+    mark = VERDICT_MARKS.get(verdict, "fail")
     lines = [
         f"# Приёмка: {result.pack.name}",
         "",
-        f"**Вердикт:** {verdict_of(result)}",
+        f"**Вердикт:** {verdict}",
+        f"**Индекс готовности:** {result.score:.1f} / 100  `{_bar(result.score)}`",
         f"**Проверено гейтов:** {payload['gatesPassed']} из {payload['gatesTotal']}",
-        f"**Цель:** {result.pack.target}",
+        f"**Цель:** {result.target}",
         f"**Прогон:** {result.started_at} → {result.finished_at}",
         "",
     ]
     if result.pack.description:
         lines += [result.pack.description, ""]
+
+    lines += ["## Измерения", "", "| Измерение | Оценка | Гейтов |", "|---|---:|---:|"]
+    for dimension, data in result.dimensions().items():
+        lines.append(f"| {data['label']} | {data['score']:.0f} / 100 | {data['passed']} / {data['total']} |")
+    lines += [""]
+
+    if result.regressions:
+        lines += ["## Регрессии относительно базовой системы", ""]
+        for item in result.regressions:
+            lines.append(f"- `{item.id}`: базовая система проходила, текущая — нет. {item.detail}")
+        lines += [""]
+
+    lines += ["## Гейты", "", "| Гейт | Измерение | Важность | Итог | Комментарий |", "|---|---|---|---|---|"]
+    for item in result.outcomes:
+        state = "пройден" if item.passed else "НЕ ПРОЙДЕН"
+        lines.append(f"| `{item.id}` | {item.gate.dimension_label} | {item.gate.severity} | {state} | {item.detail} |")
+    lines += [""]
+
+    failures = [item for item in result.outcomes if not item.passed]
+    if failures:
+        lines += ["## Что чинить", ""]
+        for item in failures:
+            lines.append(f"### `{item.id}` — {item.gate.description or item.gate.kind}")
+            lines.append("")
+            lines.append(f"- **Проблема:** {item.detail}")
+            if item.fix:
+                lines.append(f"- **Что сделать:** {item.fix}")
+            evidence = item.evidence or {}
+            if evidence.get("answerPreview"):
+                lines.append(f"- **Что ответила система:** {evidence['answerPreview'][:220]}")
+            if evidence.get("answerSha256"):
+                lines.append(f"- **Хеш ответа (SHA-256):** `{evidence['answerSha256']}`")
+            lines.append("")
+
     if result.pack.stop_conditions:
         lines += ["## Условия остановки", ""]
         lines += [f"- {item}" for item in result.pack.stop_conditions]
         lines += [""]
-    lines += ["## Гейты", "", "| Гейт | Вид | Важность | Итог | Доказательство |", "|---|---|---|---|---|"]
-    for item in result.results:
-        mark = "пройден" if item.passed else "не пройден"
-        lines.append(f"| {item.id} | {item.kind} | {item.severity} | {mark} | {item.detail} |")
-    lines += ["", "## Доказательства", ""]
-    for item in result.results:
-        evidence = item.evidence or {}
-        lines.append(f"### {item.id} — {'пройден' if item.passed else 'не пройден'}")
-        lines.append("")
-        lines.append(f"- Ответ (SHA-256): `{evidence.get('answerSha256', '—')}`")
-        if evidence.get("latencyMs") is not None:
-            lines.append(f"- Задержка: {evidence['latencyMs']} мс")
-        if evidence.get("answerPreview"):
-            lines.append(f"- Фрагмент ответа: {evidence['answerPreview'][:240]}")
-        lines.append(f"- Комментарий: {item.detail}")
-        lines.append("")
+
     lines += [
         "---",
         "",
         f"Подпись отчёта (SHA-256): `{report_hash(payload)}`",
         "",
-        "Отчёт подтверждает состояние системы на момент прогона и не заменяет приёмку "
-        "человеком ответственным за эксплуатацию.",
+        "Отчёт подтверждает состояние системы на момент прогона. Он не заменяет приёмку "
+        "человеком, ответственным за эксплуатацию, и не является гарантией качества.",
     ]
+    return "\n".join(lines)
+
+
+def render_console(result: RunResult) -> str:
+    """Короткая сводка для терминала и для CI-лога."""
+    verdict = verdict_of(result)
+    lines = [
+        f"система: {result.pack.name}",
+        f"цель:    {result.target}",
+        f"вердикт: {verdict}",
+        f"готовность: {result.score:.1f}/100",
+        "",
+    ]
+    for item in result.outcomes:
+        state = "ok  " if item.passed else "FAIL"
+        lines.append(f"  [{state}] {item.id:<28} {item.detail}")
+    if result.failed_blocking:
+        lines.append("")
+        lines.append(f"блокирующих гейтов не пройдено: {len(result.failed_blocking)} — система не принята")
+    if result.regressions:
+        lines.append(f"регрессий к базовой системе: {len(result.regressions)}")
     return "\n".join(lines)
 
 

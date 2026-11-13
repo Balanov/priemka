@@ -112,12 +112,16 @@ class FixtureTarget(Target):
 
     name = "fixture"
 
-    def __init__(self, path: str | Path) -> None:
-        source = Path(path)
-        if not source.is_file():
-            raise FileNotFoundError(f"Фикстур не найден: {source}")
-        raw = json.loads(source.read_text(encoding="utf-8"))
-        self.path = source
+    def __init__(self, path: str | Path | dict) -> None:
+        if isinstance(path, dict):
+            raw = path
+            self.path = None
+        else:
+            source = Path(path)
+            if not source.is_file():
+                raise FileNotFoundError(f"Фикстур не найден: {source}")
+            raw = json.loads(source.read_text(encoding="utf-8"))
+            self.path = source
         self.answers: dict[str, dict[str, Any]] = {}
         for entry in raw.get("answers", []):
             self.answers[entry["question"]] = entry
@@ -125,7 +129,7 @@ class FixtureTarget(Target):
         self.latency_ms = int(raw.get("latency_ms", 120))
 
     def describe(self) -> str:
-        return f"fixture:{self.path.name}"
+        return f"fixture:{self.path.name}" if self.path else "fixture:inline"
 
     def ask(self, question: str) -> Answer:
         entry = self.answers.get(question)

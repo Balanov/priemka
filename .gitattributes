@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+*.md text diff=markdown
+*.toml text
+*.py text
+*.json text
+*.svg text
+*.png binary
+*.zip binary

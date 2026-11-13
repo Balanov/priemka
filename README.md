@@ -6,6 +6,7 @@
     <a href="#install">Install</a> ·
     <a href="#quick-start">Quick start</a> ·
     <a href="#what-it-checks">Gates</a> ·
+    <a href="#proof">Proof</a> ·
     <a href="BENCHMARKS.md">Measurements</a> ·
     <a href="https://balanov.pro/priemka/">Website</a> ·
     <a href="README_RU.md">Русский</a>
@@ -63,35 +64,33 @@ answers in `examples/fixture-rag.json`.
 
 ---
 
-## Why this exists
+## What it gives you
 
-The demand is not hypothetical. Measuring **344 live AI vacancies** from 244
-employers on hh.ru in November 2026 (36 of those employers run two or more AI
-roles, which means a budgeted AI function rather than a one-off experiment)
-shows the same requirement repeated across unrelated companies:
+**A signed acceptance report instead of a demo.** A buyer usually receives a
+screen recording and a promise. `priemka` produces a report that states, for each
+claim — "the answer cites a source", "the system refuses this request", "the
+answer arrives within budget" — whether it held, which answer proved it, and the
+SHA-256 of that answer. The report is signed, and `priemka verify` tells you
+later whether it was edited.
 
-- **Quality of answers with evidence.** "Внедрение метрик качества (точность,
-  релевантность, время ответа)" — a recurring requirement in AI-engineering
-  vacancies.
-- **Versions, not answers.** "Версионирование промтов, моделей, датасетов" and
-  "CI/CD для моделей" appear in MLOps and AI-platform roles.
-- **Observability with cost.** "Внедрение наблюдаемости решений: трейсинг
-  цепочек вызовов, мониторинг качества ответов, контроль затрат".
-- **Security as a separate budget line.** VSK hired an "Архитектор
-  информационной безопасности (AI / ML)" whose job is to "проводить моделирование
-  угроз и архитектурное ревью AI-систем" and to "переводить AI-угрозы в
-  конкретные, реализуемые и проверяемые архитектурные требования".
-- **Access boundaries.** A Head of AI role at Алабуга lists "обеспечение
-  безопасности и разграничения доступа при работе агентов с чувствительными
-  данными" as a core duty.
+**A regression gate between two versions of the system.** Point the same pack at
+two systems and the tool reports what changed gate by gate:
 
-Every one of these is a question about the *system*, not about the model: does it
-answer from sources, does it refuse what it must refuse, does it stay inside its
-budget, does it behave the same way twice. Those are acceptance questions, and
-until now they were answered by a demo, a questionnaire, or an opinion.
+```bash
+python -m priemka run --pack pack.toml --target http://old/ask --baseline http://new/ask
+```
 
-`priemka` answers them with gates you write yourself, executed against the
-running service, with the evidence attached.
+A gate that passed before and fails now is marked as a regression, separately
+from a gate that has always failed. That is the difference between "the new model
+got worse" and "the system was never ready".
+
+**A CI step that says something.** The step fails on a blocking gate, so "the AI
+system is ready" stops being a sentence in a status report and becomes a build
+result.
+
+**A checklist written by the people who own the system.** The tool ships gate
+kinds; the claims they test come from your reviewers — your questions, your
+source marker, your budgets, the fragments that must never appear in an answer.
 
 ## What it checks
 
@@ -99,7 +98,7 @@ running service, with the evidence attached.
 |------|-----------|------------------------|
 | `not_empty` | quality | The service answers with nothing |
 | `contains` | quality | A required fact is missing from the answer |
-| `not_contains` | safety | Internal instructions or private data leak into the answer |
+| `not_contains` | safety | Internal instructions or private data reach the answer |
 | `matches` | quality | The answer is vague where a concrete value was required |
 | `citation` | quality | The answer has no source, so it cannot be verified |
 | `refusal` | safety | The service executes an instruction that bypasses its rules |
@@ -147,13 +146,16 @@ Python 3.11+, zero runtime dependencies.
 
 ```bash
 # 1. пакет проверок под вашу систему
-python -m priemka init --name "Корпоративная база знаний" --target http://127.0.0.1:8000/ask
+python -m priemka init --name "Корпоративная база знаний (RAG)" --target http://127.0.0.1:8000/ask
 
 # 2. прогон против живой системы
 python -m priemka run --pack pack.toml --out reports/
 
-# 3. сравнение с базовой системой: где стало хуже
-python -m priemka run --pack pack.toml --baseline http://127.0.0.1:8001/ask
+# 3. проверить, что отчёт не менялся
+python -m priemka verify --report reports/acceptance-report.json
+
+# 4. сравнение с базовой системой: где стало хуже
+python -m priemka run --pack pack.toml --target http://127.0.0.1:8001/ask --baseline http://127.0.0.1:8000/ask
 ```
 
 Against a recorded fixture — no service, no network, no model:
@@ -208,12 +210,31 @@ A full example with nine gates is in [`examples/pack-rag.toml`](examples/pack-ra
 - the SHA-256 of the canonical report — the signature that lets an auditor check
   later that the report has not been altered.
 
+`priemka verify --report reports/acceptance-report.json` recomputes the signature
+and reports whether the file is intact. The signature covers the content of the
+checks and not the wall-clock time of the run, so the same pack and the same
+answers always produce the same signature.
+
+## Proof
+
+Four claims, each checked by a run — `python bench/proof.py`:
+
+| Claim | What the run shows |
+|-------|-------------------|
+| Determinism | The same pack and fixture produce the same report signature, 5 runs in a row |
+| Fail-closed | A failed blocking gate means "not accepted", whatever the score |
+| Unreachable | An unreachable service is not accepted |
+| Integrity | A report edited after signing is detected by the signature check |
+
+Raw output: [`bench/results/proof-windows.json`](bench/results/proof-windows.json).
+
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
 | `priemka init` | Write a starter pack |
 | `priemka run` | Run a pack and write the report (`--baseline`, `--fixture`, `--json`, `--quiet`) |
+| `priemka verify` | Check that a report has not been altered since it was signed |
 | `priemka rules` | List the gate kinds |
 | `priemka explain <kind>` | What a gate proves and how to fix a failure |
 
@@ -225,21 +246,17 @@ A full example with nine gates is in [`examples/pack-rag.toml`](examples/pack-ra
     python -m priemka run --pack .priemka/pack.toml --target "$AI_SERVICE_URL" --out reports/
 ```
 
+Or as an action:
+
+```yaml
+- uses: Balanov/priemka@v0
+  with:
+    pack: .priemka/pack.toml
+    target: ${{ vars.AI_SERVICE_URL }}
+```
+
 The step fails on a blocking gate, so "the AI system is ready" becomes something
 the pipeline proves instead of something the security questionnaire asks about.
-
-## Design principles
-
-- **Fail-closed.** Unreachable service, empty answer or failed blocking gate all
-  mean "not accepted". Nothing is skipped silently.
-- **Evidence over opinion.** Every gate carries the answer hash, the latency and
-  the excerpt that produced the verdict.
-- **Offline by default.** A fixture run touches no network and no model, so the
-  acceptance suite is reproducible and cheap to run in CI.
-- **Your questions, not ours.** The tool ships gate kinds; the claims they test
-  come from your system and your reviewers.
-- **Exit codes, not vibes.** `0` accepted, `1` a blocking gate failed, `2` bad
-  input.
 
 ## Measurements
 
@@ -248,17 +265,36 @@ the pipeline proves instead of something the security questionnaire asks about.
   <p><sub>Same pack, same fixture: identical verdict and identical report signature every time. Links to reproducible evidence in <a href="BENCHMARKS.md">BENCHMARKS.md</a>.</sub></p>
 </div>
 
-See [BENCHMARKS.md](BENCHMARKS.md) for the numbers and
-[`bench/results/`](bench/results) for the raw JSON. On the reference machine a
-nine-gate run against a fixture takes **0.09 ms** of harness overhead, against
-674 ms for a single call to a local model — the check costs about 0.013 % of the
-system it checks. The report digest is byte-stable across repeated runs.
+| Measurement | Value |
+|-------------|-------|
+| Acceptance run, 9 gates, median of 25 | 0.090 ms |
+| One call to a local model, median of 3 | 674.3 ms |
+| Runtime dependencies | 0 bytes |
+| pytest + requests + httpx + pyyaml (wheel sizes) | 714 797 bytes |
+| Report signature and verdict across 5 runs | 5 / 5 identical |
+
+The check costs about **0.013 %** of a single model call. Full numbers and the
+raw JSON: [BENCHMARKS.md](BENCHMARKS.md), [`bench/results/`](bench/results).
+
+## Design principles
+
+- **Fail-closed.** Unreachable service, empty answer or failed blocking gate all
+  mean "not accepted". Nothing is skipped silently.
+- **Evidence over opinion.** Every gate result carries the answer hash, the
+  latency and the excerpt that produced the verdict.
+- **Offline by default.** A fixture run touches no network and no model, so the
+  acceptance suite is reproducible and cheap to run in CI.
+- **Your questions, not ours.** The tool ships gate kinds; the claims they test
+  come from your system and your reviewers.
+- **Exit codes, not vibes.** `0` accepted, `1` a blocking gate failed, `2` bad
+  input.
 
 ## Development
 
 ```bash
 python -m venv .venv && . .venv/Scripts/activate
 python -m unittest discover -s tests -v
+python bench/proof.py
 python bench/benchmark.py --out bench/results/local.json
 ```
 

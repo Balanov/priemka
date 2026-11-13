@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Приёмка</title>
+  <desc id="desc">A gate with a verification check passing through it</desc>
+  <rect width="128" height="128" rx="28" fill="#101310"/>
+  <path d="M30 30v68M98 30v68" fill="none" stroke="#f2f4ed" stroke-width="11" stroke-linecap="square"/>
+  <path d="M30 40h68" fill="none" stroke="#f2f4ed" stroke-width="11" stroke-linecap="square"/>
+  <path d="m44 72 14 14 30-32" fill="none" stroke="#00c6d7" stroke-width="12" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

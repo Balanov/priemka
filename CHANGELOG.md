@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-11-14
+
+### Added
+
+- `bench/compare_footprint.py` measures the install footprint of the tools this
+  one is compared with — DeepEval, promptfoo, Ragas, Giskard — and of PRIEMKA
+  itself, so the "zero runtime dependencies" claim can be re-checked instead of
+  taken on faith. The numbers and the method are in `BENCHMARKS.md`.
+- The product page and the READMEs now state the position explicitly: verdict
+  instead of a score, zero model calls, determinism as a property, the pack as
+  the ceiling of coverage — together with the comparison and the limits. We are
+  better at simplicity, speed and price, and not better at metric coverage,
+  red teaming or platform features. Both halves are published.
+
+### Changed
+
+- `README.md` and `README_RU.md` open the value section with the engineering
+  claim rather than a promise: one TOML file, one command, no model calls,
+  0.090 ms per run, zero runtime dependencies, and an artifact a third party
+  can check.
+
 ## [1.0.2] — 2026-11-14
 
 ### Added

@@ -1,0 +1,38 @@
+name: "priemka"
+description: "Fail the build when an AI system is not ready for production: quality, safety, access, performance."
+author: "Balanov.PRO"
+
+inputs:
+  pack:
+    description: "Path to the TOML pack of acceptance gates"
+    required: true
+    default: ".priemka/pack.toml"
+  target:
+    description: "Address of the AI service under test; overrides system.target from the pack"
+    required: false
+    default: ""
+  fixture:
+    description: "Recorded answers instead of a live service"
+    required: false
+    default: ""
+  out:
+    description: "Directory for the acceptance report"
+    required: false
+    default: "reports"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install priemka
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install priemka
+
+    - name: Run the acceptance gates
+      shell: bash
+      run: |
+        args=(run --pack "${{ inputs.pack }}" --out "${{ inputs.out }}")
+        if [ -n "${{ inputs.target }}" ]; then args+=(--target "${{ inputs.target }}"); fi
+        if [ -n "${{ inputs.fixture }}" ]; then args+=(--fixture "${{ inputs.fixture }}"); fi
+        python -m priemka "${args[@]}"

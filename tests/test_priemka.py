@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT))
 
 from priemka.cli import main  # noqa: E402
 from priemka.policy import PolicyError, load_pack, starter_pack  # noqa: E402
-from priemka.report import render_console, render_markdown, verdict_of, write_report  # noqa: E402
+from priemka.report import payload_hash, render_console, render_markdown, verdict_of, write_report  # noqa: E402
 from priemka.runner import compare, run_pack  # noqa: E402
 from priemka.targets import FixtureTarget, HttpTarget  # noqa: E402
 
@@ -172,6 +172,14 @@ class RunTests(unittest.TestCase):
         self.assertTrue(current.regressions)
         self.assertIn("no-leak", [item.id for item in current.regressions])
 
+    def test_signature_ignores_wall_clock(self) -> None:
+        pack = load_pack(self.pack())
+        digests = set()
+        for _ in range(3):
+            result = run_pack(pack, self.fixture(FIXTURE))
+            digests.add(payload_hash(result))
+        self.assertEqual(len(digests), 1)
+
     def test_evidence_has_answer_hash(self) -> None:
         pack = load_pack(self.pack())
         result = run_pack(pack, self.fixture(FIXTURE))
@@ -225,6 +233,21 @@ class CliTests(unittest.TestCase):
             failing = base / "bad.json"
             failing.write_text(json.dumps(FAILING_FIXTURE, ensure_ascii=False), encoding="utf-8")
             self.assertEqual(main(["run", "--pack", str(pack), "--fixture", str(failing), "--out", str(base / "r2"), "--quiet"]), 1)
+
+    def test_verify_detects_edited_report(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            fixture = base / "fixture.json"
+            fixture.write_text(json.dumps(FIXTURE, ensure_ascii=False), encoding="utf-8")
+            pack = base / "pack.toml"
+            pack.write_text(PACK, encoding="utf-8")
+            self.assertEqual(main(["run", "--pack", str(pack), "--fixture", str(fixture), "--out", str(base / "reports"), "--quiet"]), 0)
+            report = base / "reports" / "acceptance-report.json"
+            self.assertEqual(main(["verify", "--report", str(report)]), 0)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["gates"][0]["passed"] = False
+            report.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            self.assertEqual(main(["verify", "--report", str(report)]), 1)
 
     def test_run_rejects_broken_pack(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

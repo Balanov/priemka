@@ -13,6 +13,7 @@
   </p>
   <p>
     <a href="https://github.com/Balanov/priemka/actions/workflows/ci.yml"><img src="https://github.com/Balanov/priemka/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://pypi.org/project/priemka/"><img src="https://img.shields.io/pypi/v/priemka.svg" alt="PyPI"></a>
     <a href="https://github.com/Balanov/priemka/releases/latest"><img src="https://img.shields.io/github/v/release/Balanov/priemka" alt="Latest release"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT license"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.11%2B-00ADD8?logo=python&logoColor=white" alt="Python 3.11+"></a>
@@ -134,15 +135,14 @@ python -m priemka run --pack pack.toml --target http://old/ask --baseline http:/
 ## Установка
 
 ```bash
-# изолированный CLI
-pipx install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
-# в виртуальное окружение
-pip install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
-# из чекаута
-python -m priemka --help
+pipx install priemka         # изолированный CLI
+pip install priemka          # в виртуальное окружение
+python -m priemka --help     # из чекаута
 ```
 
-Python 3.11+, ноль runtime-зависимостей.
+Python 3.11+, ноль runtime-зависимостей. Пакет опубликован на
+[PyPI](https://pypi.org/project/priemka/); к каждому [релизу GitHub](https://github.com/Balanov/priemka/releases/latest)
+приложены wheel и `checksums.txt`.
 
 ## Быстрый старт
 

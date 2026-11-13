@@ -1,20 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "priemka"
-version = "0.1.0"
-description = "Проверяемый допуск ИИ-систем в эксплуатацию: fail-closed приёмка с доказательным отчётом"
+version = "1.0.0"
+description = "Acceptance gates for AI systems: prove the answer is right, safe and fast before the system reaches production."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { file = "LICENSE" }
-authors = [{ name = "Anton Balanov" }]
-keywords = ["acceptance", "ai", "llm", "rag", "quality", "audit"]
+license = { text = "MIT" }
+authors = [{ name = "Balanov.PRO" }]
+keywords = ["acceptance", "ai", "llm", "rag", "evaluation", "quality", "audit", "enterprise"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = []
+
+[project.urls]
+Homepage = "https://balanov.pro/priemka/"
+Documentation = "https://balanov.pro/priemka/"
+Source = "https://github.com/Balanov/priemka"
+Issues = "https://github.com/Balanov/priemka/issues"
+Changelog = "https://github.com/Balanov/priemka/blob/main/CHANGELOG.md"
+Benchmarks = "https://github.com/Balanov/priemka/blob/main/BENCHMARKS.md"
 
 [project.scripts]
 priemka = "priemka.cli:main"
 
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+[project.optional-dependencies]
+dev = []
 
 [tool.setuptools.packages.find]
 include = ["priemka*"]

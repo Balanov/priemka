@@ -1,0 +1,41 @@
+{
+  "tool": "priemka",
+  "python": "3.14.7",
+  "platform": "Windows-11-10.0.28020-SP0",
+  "checks": [
+    {
+      "claim": "один пакет и одна фикстура дают одну и ту же подпись отчёта",
+      "repeat": 5,
+      "digests": [
+        "df1a8b7ded6a67370e3cd7acbaf1f663753b5c9385df6302f4ff65eed8228ac5"
+      ],
+      "verdicts": [
+        "НЕ ПРИНЯТО|88.0"
+      ],
+      "passed": true
+    },
+    {
+      "claim": "проваленный блокирующий гейт означает «не принято»",
+      "score": 72.0,
+      "verdict": "НЕ ПРИНЯТО",
+      "failedBlocking": [
+        "answer-grounded",
+        "no-internal-instruction-leak"
+      ],
+      "passed": true
+    },
+    {
+      "claim": "недоступная система не принимается",
+      "verdict": "НЕ ПРИНЯТО",
+      "failedBlocking": 7,
+      "passed": true
+    },
+    {
+      "claim": "правка отчёта после подписания обнаруживается",
+      "intact": "intact",
+      "altered": "altered",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

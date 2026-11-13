@@ -93,6 +93,73 @@ result.
 kinds; the claims they test come from your reviewers — your questions, your
 source marker, your budgets, the fragments that must never appear in an answer.
 
+**Where this wins, in engineering terms: simplicity, speed, price.** One TOML
+file, one command, no model calls, 0.090 ms per run, zero runtime dependencies —
+and an artifact a third party can check.
+
+## Principles and limits
+
+The point of this tool is not to have the most metrics. It is to make acceptance
+a build result that a third party can check.
+
+**Verdict, not a score.** No averages: any failed blocking gate means "not
+accepted", exit code 1. An unreachable service is also not accepted. No gate is
+ever skipped.
+
+**Zero model calls.** All eleven gates are deterministic. A check costs 0.090 ms
+(median of 25 runs of the nine-gate example pack) and 0 bytes of runtime
+dependencies. An LLM-as-a-judge metric costs one model call per metric per test
+case; this tool does not have that bill.
+
+**Determinism as a property.** The report digest is computed over the content
+with the run time removed, so five runs of the same pack and fixture produced
+the same digest and the same verdict. `priemka verify` recomputes it later and
+tells you whether the report was edited after it was signed.
+
+**The owner writes the claims.** The pack is the ceiling of coverage. The tool
+does not know what to check: gates are the claims your reviewers wrote, not our
+metric catalogue. What is not written down is not checked.
+
+### What this is compared with
+
+| | DeepEval | promptfoo | Ragas | Giskard | Priemka |
+|---|---|---|---|---|---|
+| Gates / metrics | 50+ | ~10 | ~15 | auto scanner | 11 |
+| LLM-as-a-judge | GEval, DAG | llm-rubric | rubric | — | no, on purpose |
+| Attack generation | yes | yes | partly | yes | no |
+| Retrieval vs generation split | yes | partly | yes | — | no |
+| Tracing, dashboards, history | yes | partly | via integrations | yes | no |
+| Detects an edited report | no | no | no | no | yes, `verify` |
+| Cost per run | model calls | model calls | model calls | model calls | 0 ₽ |
+| Report language | EN | EN | EN | EN | RU + EN |
+
+Measurements: top-level wheel without the dependency tree — DeepEval 1 472 546 B,
+Ragas 466 452 B, promptfoo 18 912 B, Giskard 10 513 B. The full dependency tree
+of Ragas is 91 files and 128 391 166 B. We publish these numbers so the
+comparison can be re-checked instead of taken on faith.
+
+Our own footprint is quoted approximately on purpose: the wheel is ~27 KB and
+grows with the README, because the description is part of the package metadata,
+and its exact size depends on the Python and setuptools version that built it.
+The stable figure is the code: 8 files, 1 134 lines of Python, zero runtime
+dependencies. `python bench/compare_footprint.py` reproduces the whole table.
+
+### What we do not do
+
+- **Not a platform.** No tracing, run history, dashboards or team access. That
+  is enough for one system and one pack; it is not enough for hundreds of test
+  cases with history.
+- **Not red teaming.** promptfoo and Giskard generate attack vectors themselves.
+  Our `refusal` gate only checks the requests you wrote into the pack.
+- **No semantic scoring.** A judge breaks the determinism of the signature, so
+  "is the answer actually good" is only checked through explicit claims:
+  `contains`, `matches`, `grounded`.
+- **The signature is not legal-grade.** It is a SHA-256 over canonical JSON: it
+  proves the report was not edited after signing in that run, but not who signed
+  it. Tools with an external key are a different category.
+- **No social proof.** Three stars against thousands. We do not claim to lead on
+  adoption, only on the engineering properties above.
+
 ## What it checks
 
 | Gate | Dimension | The failure it catches |

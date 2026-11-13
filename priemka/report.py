@@ -29,9 +29,51 @@ def canonical_json(payload: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+def canonical_payload(result: RunResult) -> dict[str, Any]:
+    """Часть отчёта, которая подписывается.
+
+    Время прогона не входит в подпись: иначе два одинаковых прогона дали бы разные
+    подписи и подпись перестала бы доказывать, что именно проверялось.
+    """
+    payload = result.to_dict()
+    payload.pop("startedAt", None)
+    payload.pop("finishedAt", None)
+    return payload
+
+
 def report_hash(payload: dict[str, Any]) -> str:
     """SHA-256 канонического отчёта — подпись, по которой отчёт можно сверить позже."""
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def payload_hash(result: RunResult) -> str:
+    """Подпись результата прогона: без времени, только содержание проверок."""
+    return report_hash(canonical_payload(result))
+
+
+def verify_report(path: str | Path) -> dict[str, Any]:
+    """Проверяет, что отчёт не менялся после подписания.
+
+    Возвращает статус: `intact` — подпись сходится, `altered` — отчёт правили,
+    `unsigned` — в отчёте нет подписи, `invalid` — файл не читается.
+    """
+    source = Path(path)
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+    except Exception as error:  # noqa: BLE001
+        return {"status": "invalid", "path": str(source), "error": str(error)}
+    if not isinstance(payload, dict) or "reportSha256" not in payload:
+        return {"status": "unsigned", "path": str(source)}
+    stored = str(payload.pop("reportSha256"))
+    payload.pop("startedAt", None)
+    payload.pop("finishedAt", None)
+    computed = report_hash(payload)
+    return {
+        "status": "intact" if computed == stored else "altered",
+        "path": str(source),
+        "stored": stored,
+        "computed": computed,
+    }
 
 
 def _bar(score: float, width: int = 20) -> str:
@@ -132,7 +174,7 @@ def write_report(result: RunResult, out_dir: str | Path) -> dict[str, str]:
     directory = Path(out_dir)
     directory.mkdir(parents=True, exist_ok=True)
     payload = result.to_dict()
-    digest = report_hash(payload)
+    digest = payload_hash(result)
     payload["reportSha256"] = digest
 
     json_path = directory / "acceptance-report.json"

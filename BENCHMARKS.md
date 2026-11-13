@@ -77,6 +77,41 @@ digest, which is what makes the signature in the report meaningful: it identifie
 | `examples/fixture-rag.json` | 2 315 | `e530e258435b50c6aeea1cde7062c0e039c4b2bea224989aef50419b9cdfb744` |
 | `examples/pack-rag.toml` | — | `53265422c7e637f6a9618169745d3e094fde3dbe0913251121e64945cdb36a63` |
 
+## Comparison footprint
+
+The tool claims two things about itself: no runtime dependencies, and no model
+calls. The second is structural. The first is measured, here and next to the
+same measurement for the tools it is compared with.
+
+```bash
+python bench/compare_footprint.py              # top-level wheels
+python bench/compare_footprint.py --tree ragas # plus the full dependency tree
+```
+
+| Package | Files | Bytes | What was measured |
+|---------|------:|------:|-------------------|
+| DeepEval | 1 | 1 472 546 | top-level wheel |
+| promptfoo | 1 | 18 912 | top-level wheel |
+| Ragas | 1 | 466 452 | top-level wheel |
+| Giskard | 1 | 10 513 | top-level wheel |
+| PRIEMKA | 1 | ≈ 27 000 | top-level wheel, **0 runtime dependencies** |
+| Ragas | 91 | 128 391 166 | full dependency tree |
+
+The top-level row is the wheel of the package itself, without its dependency
+tree; the full tree of Ragas is what actually lands on disk (91 files, ~128 MB,
+mostly scipy, pyarrow, numpy and pandas). PRIEMKA's own runtime dependencies are
+zero, so its install footprint is the wheel and nothing else.
+
+Our own wheel size is quoted approximately on purpose: it changes with the
+Python and setuptools version that built it, and it grows with the README,
+because the long description is part of the package metadata. The stable figure
+is the code: 8 files, 1 134 lines of Python, zero runtime dependencies.
+
+What this does **not** measure: install time, peak memory, or the cost of a
+judge-based evaluation. The last one is a bill, not a disk figure — an
+LLM-as-a-judge metric costs one model call per metric per test case, and
+PRIEMKA's gates make no model calls at all.
+
 ## What is not measured here
 
 - Answer quality of any model. The tool measures claims you wrote, against

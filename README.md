@@ -13,6 +13,7 @@
   </p>
   <p>
     <a href="https://github.com/Balanov/priemka/actions/workflows/ci.yml"><img src="https://github.com/Balanov/priemka/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://pypi.org/project/priemka/"><img src="https://img.shields.io/pypi/v/priemka.svg" alt="PyPI"></a>
     <a href="https://github.com/Balanov/priemka/releases/latest"><img src="https://img.shields.io/github/v/release/Balanov/priemka" alt="Latest release"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT license"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.11%2B-00ADD8?logo=python&logoColor=white" alt="Python 3.11+"></a>
@@ -135,15 +136,14 @@ reader sees *which* property is weak, not just that the run failed.
 ## Install
 
 ```bash
-# isolated CLI
-pipx install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
-# into a virtualenv
-pip install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
-# from a checkout
-python -m priemka --help
+pipx install priemka         # isolated CLI
+pip install priemka          # into a virtualenv
+python -m priemka --help     # from a checkout
 ```
 
-Python 3.11+, zero runtime dependencies.
+Python 3.11+, zero runtime dependencies. The package is on
+[PyPI](https://pypi.org/project/priemka/); a signed wheel with `checksums.txt`
+is attached to every [GitHub release](https://github.com/Balanov/priemka/releases/latest).
 
 ## Quick start
 

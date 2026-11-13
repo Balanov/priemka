@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] — 2026-11-14
+
+### Fixed
+
+- The published `1.0.0` artifacts were built before the signed-report work landed,
+  so the wheel on the release page did not contain `priemka verify` nor the
+  content-only report signature, even though the README described both. The
+  artifacts are rebuilt from the current source and re-released here.
+
+### Added
+
+- `release.yml`: on a `v*` tag the workflow runs the tests, builds the wheel and
+  the sdist, writes `checksums.txt` and publishes the GitHub release, so a
+  release can be reproduced from the tag instead of assembled by hand.
+
 ## [1.0.0] — 2026-11-13
 
 ### Added

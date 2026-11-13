@@ -1,26 +1,41 @@
 """Приёмка — проверяемый допуск ИИ-систем в эксплуатацию.
 
-Пакет готовит пакет проверок (policy pack), выполняет его против работающей
-системы и выпускает доказательный отчёт: вердикт fail-closed, хеши ответов,
-время ответа и ссылка на каждый гейт.
+Пакет проверок прогоняется против работающей системы и превращается в отчёт:
+вердикт, индекс готовности, разбивка по измерениям и подсказка, что чинить.
 """
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
-from .policy import Pack, Gate, load_pack
-from .runner import RunResult, GateResult, run_pack
-from .report import render_markdown, verdict_of
+from .checks import CHECKS, Evidence, Outcome
+from .policy import DIMENSIONS, Gate, Pack, PolicyError, load_pack, starter_pack
+from .report import render_console, render_markdown, verdict_of, write_report
+from .runner import GateOutcome, RunResult, compare, run_pack
+from .targets import Answer, FixtureTarget, HttpTarget, Target, build_target
 
 __all__ = [
-    "Pack",
+    "CHECKS",
+    "DIMENSIONS",
+    "Answer",
+    "Evidence",
+    "FixtureTarget",
     "Gate",
-    "load_pack",
+    "GateOutcome",
+    "HttpTarget",
+    "Outcome",
+    "Pack",
+    "PolicyError",
     "RunResult",
-    "GateResult",
-    "run_pack",
+    "Target",
+    "build_target",
+    "compare",
+    "load_pack",
+    "render_console",
     "render_markdown",
+    "run_pack",
+    "starter_pack",
     "verdict_of",
+    "write_report",
     "__version__",
 ]

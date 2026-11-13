@@ -1,0 +1,20 @@
+[project]
+name = "priemka"
+version = "0.1.0"
+description = "Проверяемый допуск ИИ-систем в эксплуатацию: fail-closed приёмка с доказательным отчётом"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Anton Balanov" }]
+keywords = ["acceptance", "ai", "llm", "rag", "quality", "audit"]
+dependencies = []
+
+[project.scripts]
+priemka = "priemka.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["priemka*"]

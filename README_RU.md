@@ -134,9 +134,12 @@ python -m priemka run --pack pack.toml --target http://old/ask --baseline http:/
 ## Установка
 
 ```bash
-pip install priemka          # в виртуальное окружение
-pipx install priemka         # изолированный CLI
-python -m priemka --help     # из чекаута
+# изолированный CLI
+pipx install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
+# в виртуальное окружение
+pip install https://github.com/Balanov/priemka/releases/download/v1.0.1/priemka-1.0.1-py3-none-any.whl
+# из чекаута
+python -m priemka --help
 ```
 
 Python 3.11+, ноль runtime-зависимостей.

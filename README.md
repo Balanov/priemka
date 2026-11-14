@@ -368,6 +368,13 @@ python bench/proof.py
 python bench/benchmark.py --out bench/results/local.json
 ```
 
+## Related projects
+
+- [held](https://github.com/Balanov/held) — held-out measurement for claimed AI and robot improvements.
+- [verdict](https://github.com/Balanov/verdict) — a local semantic verifier for agent tool calls.
+- [mcp-attest](https://github.com/Balanov/mcp-attest) — an authorization conformance harness for MCP servers.
+
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

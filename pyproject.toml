@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "priemka"
-version = "1.0.3"
+version = "1.0.4"
 description = "Acceptance gates for AI systems: prove the answer is right, safe and fast before the system reaches production."
 readme = "README.md"
 requires-python = ">=3.11"

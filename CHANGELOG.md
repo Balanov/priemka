@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] — 2026-11-14
+
+### Changed
+
+- The mark is simplified and made more recognisable: the acceptance gate is one
+  continuous stroke and the check is another — two shapes instead of four, and
+  the check reads as passing through the gate. The same sign is now used in the
+  repository, on the product page and in the ecosystem galleries.
+
 ## [1.0.3] — 2026-11-14
 
 ### Added

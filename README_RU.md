@@ -265,6 +265,19 @@ question = "Какой порядок согласования договора?
 
 Полный пример из девяти гейтов — в [`examples/pack-rag.toml`](examples/pack-rag.toml).
 
+
+Пакет отклоняется при загрузке, если у гейта отсутствует обязательный параметр. Пустые value для contains и pattern для matches также отклоняются.
+
+| kind | parameter |
+| --- | --- |
+| contains | value |
+| not_contains | value |
+| matches | pattern |
+| citation | marker |
+| latency | max_ms |
+| cost | max_cost |
+| grounded | context |
+
 ## Отчёты
 
 `priemka run` пишет `acceptance-report.json` и `acceptance-report.md`:

@@ -162,6 +162,8 @@ dependencies. `python bench/compare_footprint.py` reproduces the whole table.
 
 ## What it checks
 
+[Gate reference with offline reproductions](docs/gates.md).
+
 | Gate | Dimension | The failure it catches |
 |------|-----------|------------------------|
 | `not_empty` | quality | The service answers with nothing |

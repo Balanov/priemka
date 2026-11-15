@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Refuse packs with missing gate parameters or vacuous contains/matches checks before running acceptance.
+
 ## [1.0.4] — 2026-11-14
 
 ### Changed

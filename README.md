@@ -266,6 +266,19 @@ readiness score; blocking gates default to `1.0`, advisory to `0.5`.
 
 A full example with nine gates is in [`examples/pack-rag.toml`](examples/pack-rag.toml).
 
+
+A pack is refused at load time if a gate omits a required parameter. Empty value for contains and empty pattern for matches are refused too.
+
+| kind | parameter |
+| --- | --- |
+| contains | value |
+| not_contains | value |
+| matches | pattern |
+| citation | marker |
+| latency | max_ms |
+| cost | max_cost |
+| grounded | context |
+
 ## Reports
 
 `priemka run` writes `acceptance-report.json` and `acceptance-report.md`:

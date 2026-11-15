@@ -12,6 +12,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+_REQUIRED_GATE_PARAMETERS = {
+    "contains": "value", "not_contains": "value", "matches": "pattern",
+    "citation": "marker", "latency": "max_ms", "cost": "max_cost",
+    "grounded": "context",
+}
+
 DIMENSIONS = ("quality", "safety", "access", "performance", "reproducibility")
 
 DIMENSION_LABELS = {
@@ -127,6 +133,12 @@ def load_pack(path: str | Path) -> Pack:
         _require(isinstance(weight, (int, float)) and weight > 0, f"Некорректный вес у {gate_id}")
 
         params = {k: v for k, v in item.items() if k not in {"id", "kind", "dimension", "severity", "weight", "description", "fix"}}
+        required = _REQUIRED_GATE_PARAMETERS.get(kind)
+        if required is not None:
+            _require(required in params, f"Gate {gate_id!r} ({kind}) requires parameter {required!r}")
+            if kind in {"contains", "matches"}:
+                _require(params[required] != "", f"Gate {gate_id!r} ({kind}) requires non-empty {required!r}")
+
         gates.append(Gate(
             id=gate_id,
             kind=kind,

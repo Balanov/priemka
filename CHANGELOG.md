@@ -4,7 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+
+## [1.0.5] — 2026-11-25
+
+### Fixed
+
+- A gate that is missing the parameter its check reads is refused when the pack is loaded, naming the gate id, the kind and the parameter. An empty `contains` value and an empty `matches` pattern are refused too, because they would pass for any answer.
+
 
 ### Fixed
 

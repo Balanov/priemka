@@ -390,6 +390,11 @@ python bench/benchmark.py --out bench/results/local.json
 - [mcp-attest](https://github.com/Balanov/mcp-attest) — an authorization conformance harness for MCP servers.
 
 
+## Related
+
+- [pact](https://github.com/Balanov/pact) — a tiny contract for agent-initiated payments: quote, consent, commit, receipt, chained by digests.
+- [attest](https://github.com/Balanov/attest) — offline verifier for PACT trails: one static Go binary, standard library only.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

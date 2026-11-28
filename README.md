@@ -395,6 +395,8 @@ python bench/benchmark.py --out bench/results/local.json
 - [pact](https://github.com/Balanov/pact) — a tiny contract for agent-initiated payments: quote, consent, commit, receipt, chained by digests.
 - [attest](https://github.com/Balanov/attest) — offline verifier for PACT trails: one static Go binary, standard library only.
 
+- [pact-conformance](https://github.com/Balanov/pact-conformance) — a GitHub Action that verifies a payment trail in CI and ships a badge.
+- [awesome-pact](https://github.com/Balanov/awesome-pact) — implementations, merchants, adapters and writing about verifiable agent payments. Add yours in one line.
 ## License
 
 MIT. See [LICENSE](LICENSE).
